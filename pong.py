@@ -1,9 +1,10 @@
 import pygame, sys, os
-import led.sim
+import led, led.game_controller
 import sprites
 
 from pygame.locals import *
 from constants import *
+from led.game_controller import *
 
 pygame.init()
 
@@ -13,7 +14,7 @@ try:
 except IndexError:
     serialPort = None
 
-teensyDisplay = led.teensy.TeensyDisplay(None, DISPLAY_SIZE)
+teensyDisplay = led.teensy.TeensyDisplay(serialPort, DISPLAY_SIZE)
 displaySize = teensyDisplay.size()
 fieldRect = pygame.Rect((0,0), displaySize)
 
@@ -41,6 +42,8 @@ font = pygame.font.SysFont("Arial", 12)
 
 scores = { PLAYER_LEFT: 0, PLAYER_RIGHT: 0 }
 
+controller = led.game_controller.GameController("/dev/cu.usbmodem621")
+
 def clear_sprite(surf, rect):
     surf.fill(COLOR_BLACK, rect)
 
@@ -48,6 +51,23 @@ def main():
     _ball = None
 
     while True:
+        for event in controller.get_events():
+            print event
+            if event[1] == 1: # KEYDOWN
+                if event[0] == BTN_P1_UP:
+                    leftPaddle.move(DIR_UP)
+                elif event[0] == BTN_P1_DOWN:
+                    leftPaddle.move(DIR_DOWN)
+                elif event[0] == BTN_P2_UP:
+                    rightPaddle.move(DIR_UP)
+                elif event[0] == BTN_P2_DOWN:
+                    rightPaddle.move(DIR_DOWN)
+            else: #KEYUP
+                if event[0] == BTN_P1_UP or event[0] == BTN_P1_DOWN:
+                    leftPaddle.move(DIR_NONE)
+                elif event[0] == BTN_P2_UP or event[0] == BTN_P2_DOWN:
+                    rightPaddle.move(DIR_NONE)
+
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()

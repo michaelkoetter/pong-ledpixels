@@ -2,7 +2,7 @@ import pygame
 from pygame.locals import *
 
 # Display
-DISPLAY_SIZE = (90, 90)
+DISPLAY_SIZE = (90, 20)
 
 # Colors
 COLOR_BLACK =       pygame.Color(  0,   0,   0)
