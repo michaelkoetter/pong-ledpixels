@@ -7,15 +7,25 @@ from constants import *
 
 pygame.init()
 
-display = led.sim.SimDisplay(DISPLAY_SIZE)
-screen = pygame.Surface(DISPLAY_SIZE)
+
+try:
+    serialPort = sys.argv[1]
+except IndexError:
+    serialPort = None
+
+teensyDisplay = led.teensy.TeensyDisplay(None, DISPLAY_SIZE)
+displaySize = teensyDisplay.size()
+fieldRect = pygame.Rect((0,0), displaySize)
+
+simDisplay = led.sim.SimDisplay(displaySize)
+screen = pygame.Surface(displaySize)
 
 fpsClock = pygame.time.Clock()
 
-leftPaddle = sprites.Paddle(PLAYER_LEFT, FIELD_RECT)
-rightPaddle = sprites.Paddle(PLAYER_RIGHT, FIELD_RECT)
-leftWall = sprites.Wall(PLAYER_LEFT, FIELD_RECT)
-rightWall = sprites.Wall(PLAYER_RIGHT, FIELD_RECT)
+leftPaddle = sprites.Paddle(PLAYER_LEFT, fieldRect)
+rightPaddle = sprites.Paddle(PLAYER_RIGHT, fieldRect)
+leftWall = sprites.Wall(PLAYER_LEFT, fieldRect)
+rightWall = sprites.Wall(PLAYER_RIGHT, fieldRect)
 
 allSprites = pygame.sprite.OrderedUpdates()
 paddles = pygame.sprite.Group()
@@ -59,7 +69,7 @@ def main():
 
         # create new ball if necessary
         if not bool(ball):
-            _ball = sprites.Ball(FIELD_RECT)
+            _ball = sprites.Ball(fieldRect)
             _ball.add((allSprites, ball))
 
         # check collisions with paddle..
@@ -82,16 +92,19 @@ def main():
         scoreRight = font.render(str(scores[PLAYER_RIGHT]), True, COLOR_DARKGRAY)
 
         r = scoreLeft.get_rect()
-        r.center = (FIELD_RECT.width / 4, FIELD_RECT.centery)
+        r.center = (fieldRect.width / 4, fieldRect.centery)
         screen.blit(scoreLeft, r)
 
         r = scoreRight.get_rect()
-        r.center = (FIELD_RECT.width - FIELD_RECT.width / 4, FIELD_RECT.centery)
+        r.center = (fieldRect.width - fieldRect.width / 4, fieldRect.centery)
         screen.blit(scoreRight, r)
 
         allSprites.update()
         allSprites.draw(screen)
-        display.update(screen)
+
+        teensyDisplay.update(screen)
+        simDisplay.update(screen)
+
         fpsClock.tick(30)
 
 main()

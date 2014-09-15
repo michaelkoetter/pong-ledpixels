@@ -25,7 +25,7 @@ class Paddle(pygame.sprite.Sprite):
         self.rect = _rect
 
 class Ball(pygame.sprite.Sprite):
-    def __init__(self, fieldRect):
+    def __init__(self, fieldRect, speed = 0.4):
         pygame.sprite.Sprite.__init__(self)
 
         self.image = pygame.Surface((1, 1))
@@ -36,15 +36,21 @@ class Ball(pygame.sprite.Sprite):
         self._fieldRect = fieldRect
         self._dirx = 1
         self._diry = 1
+        self._speed = speed
+        self._movement = 0.0
 
     def update(self, *args):
-        if self.rect.top <= self._fieldRect.top or self.rect.bottom >= self._fieldRect.bottom:
-            self._diry *= -1
-        if self.rect.left <= self._fieldRect.left or self.rect.right >= self._fieldRect.right:
-            self._dirx *= -1
 
-        _rect = self.rect.move(self._dirx, self._diry)
-        self.rect = _rect
+        self._movement += self._speed
+        if self._movement >= 1.0:
+            if self.rect.top <= self._fieldRect.top or self.rect.bottom >= self._fieldRect.bottom:
+                self._diry *= -1
+            if self.rect.left <= self._fieldRect.left or self.rect.right >= self._fieldRect.right:
+                self._dirx *= -1
+
+            _rect = self.rect.move(self._movement * self._dirx, self._movement * self._diry)
+            self.rect = _rect
+            self._movement -= 1.0
 
 class Wall(pygame.sprite.Sprite):
     def __init__(self, player, fieldRect):
