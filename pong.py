@@ -23,10 +23,10 @@ screen = pygame.Surface(displaySize)
 
 fpsClock = pygame.time.Clock()
 
-leftPaddle = sprites.Paddle(PLAYER_LEFT, fieldRect)
-rightPaddle = sprites.Paddle(PLAYER_RIGHT, fieldRect)
-leftWall = sprites.Wall(PLAYER_LEFT, fieldRect)
-rightWall = sprites.Wall(PLAYER_RIGHT, fieldRect)
+leftPaddle = sprites.Paddle(PLAYER_LEFT, FIELD_RECT)
+rightPaddle = sprites.Paddle(PLAYER_RIGHT, FIELD_RECT)
+leftWall = sprites.Wall(PLAYER_LEFT, FIELD_RECT)
+rightWall = sprites.Wall(PLAYER_RIGHT, FIELD_RECT)
 
 allSprites = pygame.sprite.OrderedUpdates()
 paddles = pygame.sprite.Group()
