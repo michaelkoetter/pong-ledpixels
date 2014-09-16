@@ -14,7 +14,7 @@ try:
 except IndexError:
     serialPort = None
 
-teensyDisplay = led.teensy.TeensyDisplay(serialPort, DISPLAY_SIZE)
+teensyDisplay = led.teensy.TeensyDisplay(serialPort)
 displaySize = teensyDisplay.size()
 fieldRect = pygame.Rect((0,0), displaySize)
 
@@ -23,10 +23,10 @@ screen = pygame.Surface(displaySize)
 
 fpsClock = pygame.time.Clock()
 
-leftPaddle = sprites.Paddle(PLAYER_LEFT, FIELD_RECT)
-rightPaddle = sprites.Paddle(PLAYER_RIGHT, FIELD_RECT)
-leftWall = sprites.Wall(PLAYER_LEFT, FIELD_RECT)
-rightWall = sprites.Wall(PLAYER_RIGHT, FIELD_RECT)
+leftPaddle = sprites.Paddle(PLAYER_LEFT, fieldRect)
+rightPaddle = sprites.Paddle(PLAYER_RIGHT, fieldRect)
+leftWall = sprites.Wall(PLAYER_LEFT, fieldRect)
+rightWall = sprites.Wall(PLAYER_RIGHT, fieldRect)
 
 allSprites = pygame.sprite.OrderedUpdates()
 paddles = pygame.sprite.Group()
