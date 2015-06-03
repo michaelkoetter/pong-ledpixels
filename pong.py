@@ -1,20 +1,15 @@
-import pygame, sys, os
-import led, led.game_controller
+import sys
+import led
 import sprites
 
-from pygame.locals import *
 from constants import *
-from led.game_controller import *
+from led.PixelEventHandler import *
 
 pygame.init()
 
+fallbackSize = (90, 20)
 
-try:
-    serialPort = sys.argv[1]
-except IndexError:
-    serialPort = None
-
-teensyDisplay = led.teensy.TeensyDisplay(serialPort)
+teensyDisplay = led.dsclient.DisplayServerClientDisplay('localhost', 8123, fallbackSize)
 displaySize = teensyDisplay.size()
 fieldRect = pygame.Rect((0,0), displaySize)
 
@@ -42,7 +37,13 @@ font = pygame.font.SysFont("Arial", 12)
 
 scores = { PLAYER_LEFT: 0, PLAYER_RIGHT: 0 }
 
-controller = led.game_controller.GameController("/dev/cu.usbmodem621")
+pygame.joystick.init()
+
+# Initialize first joystick
+if pygame.joystick.get_count() > 0:
+    stick = pygame.joystick.Joystick(0)
+    stick.init()
+
 
 def clear_sprite(surf, rect):
     surf.fill(COLOR_BLACK, rect)
@@ -51,40 +52,31 @@ def main():
     _ball = None
 
     while True:
-        for event in controller.get_events():
-            print event
-            if event[1] == 1: # KEYDOWN
-                if event[0] == BTN_P1_UP:
-                    leftPaddle.move(DIR_UP)
-                elif event[0] == BTN_P1_DOWN:
-                    leftPaddle.move(DIR_DOWN)
-                elif event[0] == BTN_P2_UP:
-                    rightPaddle.move(DIR_UP)
-                elif event[0] == BTN_P2_DOWN:
-                    rightPaddle.move(DIR_DOWN)
-            else: #KEYUP
-                if event[0] == BTN_P1_UP or event[0] == BTN_P1_DOWN:
-                    leftPaddle.move(DIR_NONE)
-                elif event[0] == BTN_P2_UP or event[0] == BTN_P2_DOWN:
-                    rightPaddle.move(DIR_NONE)
-
-        for event in pygame.event.get():
-            if event.type == QUIT:
+        for pgevent in pygame.event.get():
+            if pgevent.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == KEYDOWN:
-                if event.key == KEY_LEFT_UP:
+
+            event = process_event(pgevent)
+
+            if event.button == EXIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == PUSH: # KEYDOWN
+                if event.button == UP and event.player == PLAYER1:
                     leftPaddle.move(DIR_UP)
-                elif event.key == KEY_LEFT_DOWN:
+                elif event.button == DOWN and event.player == PLAYER1:
                     leftPaddle.move(DIR_DOWN)
-                elif event.key == KEY_RIGHT_UP:
+                elif event.button == UP and event.player == PLAYER2:
                     rightPaddle.move(DIR_UP)
-                elif event.key == KEY_RIGHT_DOWN:
+                elif event.button == DOWN and event.player == PLAYER2:
                     rightPaddle.move(DIR_DOWN)
-            elif event.type == KEYUP:
-                if event.key == KEY_LEFT_UP or event.key == KEY_LEFT_DOWN:
+
+            elif event.type == RELEASE and (event.button == DOWN or event.button == UP): #KEYUP
+                if event.player == PLAYER1:
                     leftPaddle.move(DIR_NONE)
-                elif event.key == KEY_RIGHT_UP or event.key == KEY_RIGHT_DOWN:
+                elif event.player == PLAYER2:
                     rightPaddle.move(DIR_NONE)
 
         # create new ball if necessary
