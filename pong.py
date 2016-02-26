@@ -87,6 +87,7 @@ def main():
         # check collisions with paddle..
         ball_paddles = pygame.sprite.groupcollide(ball, paddles, False, False)
         if ball_paddles:
+            _ball.increase_speed()
             # nothing happens
             pass
         else:
@@ -97,6 +98,7 @@ def main():
                 (_ball, _walls) = ball_walls.popitem()
                 _player = _walls[0].get_player()
                 scores[_player] += 1
+
 
         screen.fill(COLOR_BLACK)
 

@@ -39,6 +39,10 @@ class Ball(pygame.sprite.Sprite):
         self._speed = speed
         self._movement = 0.0
 
+    def increase_speed(self):
+        new_speed = self._speed * 1.05
+        self._speed = new_speed if new_speed < 1 else 1
+
     def update(self, *args):
 
         self._movement += self._speed
